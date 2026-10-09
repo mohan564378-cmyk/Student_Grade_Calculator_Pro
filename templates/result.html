@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Student Result | GradePilot Pro{% endblock %}
+
+{% block page_heading %}Student Result Report{% endblock %}
+
+{% block content %}
+
+<div class="result-toolbar">
+
+    <div>
+        <a href="{{ url_for('index') }}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
+        <h1 class="result-page-title">Academic Performance Report</h1>
+
+        <p class="muted">
+            Result ID: GP-{{ "%05d"|format(result['id']) }}
+            · {{ result['created_at'] }}
+        </p>
+    </div>
+
+    <button type="button"
+            onclick="window.print()"
+            class="button button-primary no-print">
+
+        Print Report ↗
+
+    </button>
+
+</div>
+
+
+<section class="result-hero">
+
+    <div class="result-student-info">
+
+        <div class="result-avatar">
+            {{ result['student_name'][0]|upper }}
+        </div>
+
+        <div>
+
+            <div class="section-eyebrow">STUDENT REPORT</div>
+
+            <h2>{{ result['student_name'] }}</h2>
+
+            <p>{{ result['class_name'] }}</p>
+
+            <div class="result-meta">
+                <span>Roll No: <strong>{{ result['roll_number'] }}</strong></span>
+                <span>Report ID: <strong>GP-{{ "%05d"|format(result['id']) }}</strong></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="overall-grade-panel">
+
+        <div class="overall-grade-label">OVERALL GRADE</div>
+
+        <div class="overall-grade-value">
+            {{ result['grade'] }}
+        </div>
+
+        <span class="status-badge status-{{ result['status']|lower }}">
+            {{ result['status'] }}
+        </span>
+
+    </div>
+
+</section>
+
+
+<section class="result-stats-grid">
+
+    <div class="result-stat-card">
+
+        <div class="result-stat-label">TOTAL MARKS</div>
+
+        <div class="result-stat-number">
+            {{ "%.2f"|format(result['total_marks']) }}
+            <span>/ {{ "%.2f"|format(result['max_marks']) }}</span>
+        </div>
+
+        <p>Marks obtained across all subjects</p>
+
+    </div>
+
+
+    <div class="result-stat-card">
+
+        <div class="result-stat-label">OVERALL PERCENTAGE</div>
+
+        <div class="result-stat-number">
+            {{ "%.2f"|format(result['percentage']) }}<span>%</span>
+        </div>
+
+        <div class="progress-track">
+            <div class="progress-fill"
+                 style="width: {{ [result['percentage'], 100]|min }}%;">
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="result-stat-card">
+
+        <div class="result-stat-label">SUBJECTS</div>
+
+        <div class="result-stat-number">{{ subjects|length }}</div>
+
+        <p>Total subjects evaluated</p>
+
+    </div>
+
+
+    <div class="result-stat-card">
+
+        <div class="result-stat-label">SUBJECTS PASSED</div>
+
+        <div class="result-stat-number">
+            {{ subjects|selectattr('status', 'equalto', 'Pass')|list|length }}
+            <span>/ {{ subjects|length }}</span>
+        </div>
+
+        <p>Minimum required: 40% per subject</p>
+
+    </div>
+
+</section>
+
+
+<section class="panel result-subject-panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h3>Subject-wise Performance</h3>
+
+            <p>
+                Detailed marks, percentages, and grades for each subject.
+            </p>
+        </div>
+
+        <span class="section-chip">OFFICIAL SUMMARY</span>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table class="data-table result-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>SUBJECT</th>
+                    <th>MARKS OBTAINED</th>
+                    <th>PERCENTAGE</th>
+                    <th>PERFORMANCE</th>
+                    <th>GRADE</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for subject in subjects %}
+
+                    <tr>
+
+                        <td>{{ "%02d"|format(loop.index) }}</td>
+
+                        <td>
+                            <strong>{{ subject['name'] }}</strong>
+                        </td>
+
+                        <td>
+                            {{ "%.2f"|format(subject['marks']) }}
+                            /
+                            {{ "%.2f"|format(subject['max_marks']) }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ "%.2f"|format(subject['percentage']) }}%
+                            </strong>
+                        </td>
+
+                        <td>
+
+                            <div class="subject-progress">
+                                <div class="subject-progress-fill"
+                                     style="width: {{ [subject['percentage'], 100]|min }}%;">
+                                </div>
+                            </div>
+
+                        </td>
+
+                        <td>
+                            <span class="grade-badge grade-{{ subject['grade']|lower|replace('+', '-plus') }}">
+                                {{ subject['grade'] }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="status-badge status-{{ subject['status']|lower }}">
+                                {{ subject['status'] }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+            <tfoot>
+
+                <tr>
+                    <td colspan="2"><strong>TOTAL</strong></td>
+
+                    <td>
+                        <strong>
+                            {{ "%.2f"|format(result['total_marks']) }}
+                            /
+                            {{ "%.2f"|format(result['max_marks']) }}
+                        </strong>
+                    </td>
+
+                    <td colspan="2">
+                        <strong>
+                            {{ "%.2f"|format(result['percentage']) }}%
+                        </strong>
+                    </td>
+
+                    <td>
+                        <span class="grade-badge grade-{{ result['grade']|lower|replace('+', '-plus') }}">
+                            {{ result['grade'] }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-badge status-{{ result['status']|lower }}">
+                            {{ result['status'] }}
+                        </span>
+                    </td>
+
+                </tr>
+
+            </tfoot>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<section class="result-note">
+
+    <div class="result-note-icon">i</div>
+
+    <div>
+
+        <strong>Result interpretation</strong>
+
+        <p>
+            Overall percentage is calculated using total marks obtained
+            divided by total maximum marks. A student passes only when
+            every subject reaches at least 40%.
+        </p>
+
+    </div>
+
+</section>
+
+
+<div class="result-bottom-actions no-print">
+
+    <a href="{{ url_for('index') }}#calculator"
+       class="button button-primary">
+
+        + Calculate Another Result
+
+    </a>
+
+    <a href="{{ url_for('history') }}"
+       class="button button-outline">
+
+        View Result History
+
+    </a>
+
+</div>
+
+{% endblock %}

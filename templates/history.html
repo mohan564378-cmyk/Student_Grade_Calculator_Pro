@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Result History | GradePilot Pro{% endblock %}
+
+{% block page_heading %}Result History{% endblock %}
+
+{% block content %}
+
+<section class="history-intro">
+
+    <div>
+
+        <div class="section-eyebrow">RECORD MANAGEMENT</div>
+
+        <h1>Student Result History</h1>
+
+        <p>
+            Search, review, and manage all previously calculated results.
+        </p>
+
+    </div>
+
+    <a href="{{ url_for('index') }}#calculator"
+       class="button button-primary">
+
+        + New Calculation
+
+    </a>
+
+</section>
+
+
+<section class="history-summary-grid">
+
+    <div class="history-summary-card">
+        <span class="summary-icon">▤</span>
+        <div>
+            <div class="summary-title">Records Found</div>
+            <div class="summary-value">{{ results|length }}</div>
+        </div>
+    </div>
+
+    <div class="history-summary-card">
+        <span class="summary-icon">⌕</span>
+        <div>
+            <div class="summary-title">Search Results</div>
+            <div class="summary-value">
+                {% if search_query %}
+                    Filtered
+                {% else %}
+                    All Records
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</section>
+
+
+<section class="panel history-panel">
+
+    <div class="history-search-header">
+
+        <div>
+            <h3>All Student Records</h3>
+            <p>Search by name, roll number, or class.</p>
+        </div>
+
+        <form action="{{ url_for('history') }}"
+              method="GET"
+              class="search-form">
+
+            <input
+                type="search"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Search student..."
+                aria-label="Search student records"
+            >
+
+            <button type="submit" class="button button-primary">
+                Search
+            </button>
+
+            {% if search_query %}
+
+                <a href="{{ url_for('history') }}"
+                   class="button button-outline">
+
+                    Clear
+
+                </a>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    {% if results %}
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+                        <th>STUDENT</th>
+                        <th>ROLL NUMBER</th>
+                        <th>CLASS</th>
+                        <th>TOTAL MARKS</th>
+                        <th>PERCENTAGE</th>
+                        <th>GRADE</th>
+                        <th>STATUS</th>
+                        <th>DATE</th>
+                        <th>ACTIONS</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in results %}
+
+                        <tr>
+
+                            <td>
+
+                                <div class="student-cell">
+
+                                    <div class="student-avatar">
+                                        {{ item['student_name'][0]|upper }}
+                                    </div>
+
+                                    <strong>{{ item['student_name'] }}</strong>
+
+                                </div>
+
+                            </td>
+
+                            <td>{{ item['roll_number'] }}</td>
+
+                            <td>{{ item['class_name'] }}</td>
+
+                            <td>
+                                {{ "%.2f"|format(item['total_marks']) }}
+                                /
+                                {{ "%.2f"|format(item['max_marks']) }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ "%.2f"|format(item['percentage']) }}%
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                <span class="grade-badge grade-{{ item['grade']|lower|replace('+', '-plus') }}">
+                                    {{ item['grade'] }}
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <span class="status-badge status-{{ item['status']|lower }}">
+                                    {{ item['status'] }}
+                                </span>
+
+                            </td>
+
+                            <td>{{ item['created_at'] }}</td>
+
+                            <td>
+
+                                <div class="action-buttons">
+
+                                    <a href="{{ url_for('result', result_id=item['id']) }}"
+                                       class="table-action">
+
+                                        View
+
+                                    </a>
+
+                                    <form
+                                        action="{{ url_for('delete_result', result_id=item['id']) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Delete this result permanently?');"
+                                    >
+
+                                        <button type="submit"
+                                                class="delete-action">
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">⌕</div>
+
+            <h3>No records found</h3>
+
+            <p>
+                {% if search_query %}
+                    Try a different name, roll number, or class.
+                {% else %}
+                    Calculate a student's grade to create your first record.
+                {% endif %}
+            </p>
+
+            {% if search_query %}
+
+                <a href="{{ url_for('history') }}"
+                   class="button button-outline">
+
+                    Show All Records
+
+                </a>
+
+            {% else %}
+
+                <a href="{{ url_for('index') }}#calculator"
+                   class="button button-primary">
+
+                    Calculate First Result
+
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

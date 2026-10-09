@@ -1,0 +1,680 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | GradePilot Pro{% endblock %}
+
+{% block page_heading %}Dashboard Overview{% endblock %}
+
+{% block content %}
+
+<section class="welcome-banner">
+
+    <div class="welcome-content">
+
+        <div class="welcome-tag">
+            <span class="welcome-tag-dot"></span>
+            STUDENT PERFORMANCE CENTER
+        </div>
+
+        <h1>Welcome to <span>GradePilot Pro</span></h1>
+
+        <p>
+            Calculate grades, analyze academic performance,
+            and manage student results from one professional dashboard.
+        </p>
+
+        <a href="#calculator" class="button button-light">
+            + Calculate New Grade
+        </a>
+
+    </div>
+
+    <div class="welcome-art">
+
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+
+        <div class="art-card">
+
+            <div class="art-card-top">
+                <span>ACADEMIC REPORT</span>
+                <span>↗</span>
+            </div>
+
+            <div class="art-grade">A+</div>
+
+            <div class="art-grade-label">Excellent performance</div>
+
+            <div class="art-progress">
+                <span></span>
+            </div>
+
+            <div class="art-card-bottom">
+                <span>Performance</span>
+                <strong>90%+</strong>
+            </div>
+
+        </div>
+
+        <div class="floating-badge">✓ Smart grading</div>
+
+    </div>
+
+</section>
+
+
+<section class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon icon-blue">♙</div>
+            <span class="stat-label">ALL RECORDS</span>
+        </div>
+
+        <div class="stat-number">{{ total_students }}</div>
+
+        <div class="stat-title">Saved Results</div>
+
+        <div class="stat-footer">
+            Total student result records
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon icon-green">✓</div>
+            <span class="stat-label">SUCCESS</span>
+        </div>
+
+        <div class="stat-number">{{ passed_students }}</div>
+
+        <div class="stat-title">Passed Results</div>
+
+        <div class="stat-footer">
+            Records with every subject passed
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon icon-purple">↗</div>
+            <span class="stat-label">PERFORMANCE</span>
+        </div>
+
+        <div class="stat-number">
+            {{ "%.2f"|format(average_percentage) }}<span class="stat-percent">%</span>
+        </div>
+
+        <div class="stat-title">Average Percentage</div>
+
+        <div class="stat-footer">
+            Average across saved results
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon icon-orange">◎</div>
+            <span class="stat-label">GRADING</span>
+        </div>
+
+        <div class="stat-number">A+</div>
+
+        <div class="stat-title">Top Grade</div>
+
+        <div class="stat-footer">
+            Awarded for 90% and above
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section-heading">
+
+    <div>
+        <div class="section-eyebrow">ACADEMIC TOOLS</div>
+        <h2>Grade Calculator</h2>
+        <p>Enter student information and subject marks below.</p>
+    </div>
+
+    <div class="section-chip">
+        <span class="status-dot"></span>
+        Auto grade calculation
+    </div>
+
+</section>
+
+
+<section class="calculator-layout" id="calculator">
+
+    <div class="panel calculator-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h3>Student Information</h3>
+                <p>Enter the details carefully before calculating.</p>
+            </div>
+
+            <div class="panel-step">01 / 02</div>
+
+        </div>
+
+
+        <form action="{{ url_for('calculate') }}"
+              method="POST"
+              id="gradeForm">
+
+            <div class="form-section-title">
+                <span class="form-section-number">01</span>
+                PERSONAL DETAILS
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group full-width">
+
+                    <label for="student_name">Student Full Name *</label>
+
+                    <input
+                        type="text"
+                        id="student_name"
+                        name="student_name"
+                        placeholder="Enter student's full name"
+                        maxlength="100"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="roll_number">Roll Number *</label>
+
+                    <input
+                        type="text"
+                        id="roll_number"
+                        name="roll_number"
+                        placeholder="e.g. 23CS001"
+                        maxlength="40"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="class_name">Class / Department *</label>
+
+                    <input
+                        type="text"
+                        id="class_name"
+                        name="class_name"
+                        placeholder="e.g. B.Sc. Computer Science"
+                        maxlength="80"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-divider"></div>
+
+
+            <div class="subjects-heading">
+
+                <div>
+                    <div class="form-section-title">
+                        <span class="form-section-number">02</span>
+                        SUBJECT MARKS
+                    </div>
+
+                    <p class="subjects-description">
+                        Enter the marks obtained and maximum marks for each subject.
+                    </p>
+                </div>
+
+                <button type="button"
+                        class="button button-outline button-small"
+                        id="addSubjectBtn">
+
+                    + Add Subject
+
+                </button>
+
+            </div>
+
+
+            <div class="subject-table-wrapper">
+
+                <table class="subject-table">
+
+                    <thead>
+                        <tr>
+                            <th>SUBJECT NAME</th>
+                            <th>MARKS OBTAINED</th>
+                            <th>MAXIMUM MARKS</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="subjectRows">
+
+                        <tr class="subject-row">
+
+                            <td>
+                                <input
+                                    type="text"
+                                    name="subject_name[]"
+                                    placeholder="English"
+                                    maxlength="100"
+                                    value="English"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="marks[]"
+                                    placeholder="85"
+                                    min="0"
+                                    max="100000"
+                                    step="any"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="max_marks[]"
+                                    value="100"
+                                    min="0.01"
+                                    max="100000"
+                                    step="any"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="remove-subject"
+                                        aria-label="Remove subject">
+                                    ×
+                                </button>
+                            </td>
+
+                        </tr>
+
+
+                        <tr class="subject-row">
+
+                            <td>
+                                <input
+                                    type="text"
+                                    name="subject_name[]"
+                                    placeholder="Tamil"
+                                    maxlength="100"
+                                    value="Tamil"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="marks[]"
+                                    placeholder="90"
+                                    min="0"
+                                    max="100000"
+                                    step="any"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="max_marks[]"
+                                    value="100"
+                                    min="0.01"
+                                    max="100000"
+                                    step="any"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="remove-subject"
+                                        aria-label="Remove subject">
+                                    ×
+                                </button>
+                            </td>
+
+                        </tr>
+
+
+                        <tr class="subject-row">
+
+                            <td>
+                                <input
+                                    type="text"
+                                    name="subject_name[]"
+                                    placeholder="Computer Science"
+                                    maxlength="100"
+                                    value="Computer Science"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="marks[]"
+                                    placeholder="95"
+                                    min="0"
+                                    max="100000"
+                                    step="any"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <input
+                                    type="number"
+                                    name="max_marks[]"
+                                    value="100"
+                                    min="0.01"
+                                    max="100000"
+                                    step="any"
+                                    required
+                                >
+                            </td>
+
+                            <td>
+                                <button type="button"
+                                        class="remove-subject"
+                                        aria-label="Remove subject">
+                                    ×
+                                </button>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="grading-note">
+
+                <div class="grading-note-icon">i</div>
+
+                <div>
+                    <strong>Grading policy</strong>
+
+                    <p>
+                        90%+ = A+ · 80%+ = A · 70%+ = B ·
+                        60%+ = C · 50%+ = D · 40%+ = E ·
+                        Below 40% = F
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button type="reset"
+                        class="button button-outline"
+                        id="resetFormBtn">
+
+                    Reset Form
+
+                </button>
+
+                <button type="submit"
+                        class="button button-primary"
+                        id="calculateBtn">
+
+                    Calculate Result <span>→</span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <aside class="calculator-sidebar">
+
+        <div class="side-info-card">
+
+            <div class="side-info-icon">✦</div>
+
+            <h3>Smart Grade Engine</h3>
+
+            <p>
+                Calculate percentages, assign grades, and check pass/fail
+                status automatically.
+            </p>
+
+            <div class="feature-line">
+                <span>✓</span>
+                Automatic percentage calculation
+            </div>
+
+            <div class="feature-line">
+                <span>✓</span>
+                Individual subject grades
+            </div>
+
+            <div class="feature-line">
+                <span>✓</span>
+                Overall academic performance
+            </div>
+
+            <div class="feature-line">
+                <span>✓</span>
+                Automatic result history
+            </div>
+
+        </div>
+
+
+        <div class="grade-scale-card">
+
+            <h3>Grade Reference</h3>
+
+            <p class="grade-scale-subtitle">
+                Percentage-based grading
+            </p>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-a-plus">A+</span>
+                <span>90% – 100%</span>
+                <span class="grade-description">Excellent</span>
+            </div>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-a">A</span>
+                <span>80% – 89.99%</span>
+                <span class="grade-description">Very Good</span>
+            </div>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-b">B</span>
+                <span>70% – 79.99%</span>
+                <span class="grade-description">Good</span>
+            </div>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-c">C</span>
+                <span>60% – 69.99%</span>
+                <span class="grade-description">Average</span>
+            </div>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-d">D</span>
+                <span>50% – 59.99%</span>
+                <span class="grade-description">Fair</span>
+            </div>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-e">E</span>
+                <span>40% – 49.99%</span>
+                <span class="grade-description">Pass</span>
+            </div>
+
+            <div class="grade-scale-row">
+                <span class="grade-badge grade-f">F</span>
+                <span>Below 40%</span>
+                <span class="grade-description">Fail</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+</section>
+
+
+<section class="section-heading recent-section">
+
+    <div>
+        <div class="section-eyebrow">LATEST ACTIVITY</div>
+        <h2>Recent Results</h2>
+        <p>Your latest calculated student records.</p>
+    </div>
+
+    <a href="{{ url_for('history') }}"
+       class="button button-outline">
+
+        View All Results →
+
+    </a>
+
+</section>
+
+
+<section class="panel recent-panel">
+
+    {% if recent_results %}
+
+        <div class="table-wrapper">
+
+            <table class="data-table">
+
+                <thead>
+                    <tr>
+                        <th>STUDENT</th>
+                        <th>ROLL NUMBER</th>
+                        <th>CLASS</th>
+                        <th>PERCENTAGE</th>
+                        <th>GRADE</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in recent_results %}
+
+                        <tr>
+
+                            <td>
+                                <div class="student-cell">
+                                    <div class="student-avatar">
+                                        {{ item['student_name'][0]|upper }}
+                                    </div>
+
+                                    <strong>{{ item['student_name'] }}</strong>
+                                </div>
+                            </td>
+
+                            <td>{{ item['roll_number'] }}</td>
+
+                            <td>{{ item['class_name'] }}</td>
+
+                            <td>
+                                <strong>
+                                    {{ "%.2f"|format(item['percentage']) }}%
+                                </strong>
+                            </td>
+
+                            <td>
+                                <span class="grade-badge grade-{{ item['grade']|lower|replace('+', '-plus') }}">
+                                    {{ item['grade'] }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="status-badge status-{{ item['status']|lower }}">
+                                    {{ item['status'] }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <a class="table-action"
+                                   href="{{ url_for('result', result_id=item['id']) }}">
+                                    View →
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">▤</div>
+
+            <h3>No results yet</h3>
+
+            <p>
+                Add a student's marks above to create your first result.
+            </p>
+
+            <a href="#calculator" class="button button-primary">
+                Calculate First Result
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
